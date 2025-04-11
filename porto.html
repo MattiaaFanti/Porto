@@ -16,7 +16,7 @@
         }
         #iframe-container {
             overflow: hidden;
-            height: 1000px; /* Sufficiente per 20 navi */
+            height: 850px; /* Taglia il footer, spazio per 17-20 navi */
             position: relative;
         }
         #vessel-iframe {
@@ -24,16 +24,7 @@
             height: 2000px; /* Altezza totale della pagina */
             border: none;
             position: relative;
-            top: -700px; /* Nasconde i filtri senza tagliare la tabella */
-        }
-        #iframe-container::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 300px; /* Aumentato per coprire il footer */
-            background: white;
+            top: -700px; /* Nasconde i filtri sopra */
         }
         .credit {
             font-size: 12px;
