@@ -81,35 +81,13 @@
                         throw new Error('Sezione "Expected" non trovata');
                     }
 
-                    // Estrai la tabella
+                    // Estrai la tabella completa
                     const tableElement = expectedSection.querySelector('table.ships-in-range');
                     if (!tableElement) {
                         throw new Error('Tabella non trovata');
                     }
 
-                    // Filtra per domani
-                    const today = new Date();
-                    const tomorrow = new Date(today);
-                    tomorrow.setDate(today.getDate() + 1);
-                    const tomorrowStr = tomorrow.toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric'
-                    }).replace(/,/, '');
-
-                    const rows = tableElement.querySelectorAll('tbody tr');
-                    const filteredRows = Array.from(rows).filter(row => {
-                        const etaCell = row.cells[0].textContent.trim();
-                        return etaCell.includes(tomorrowStr);
-                    });
-
-                    if (filteredRows.length === 0) {
-                        errorDiv.textContent = 'Nessuna nave prevista per domani';
-                        errorDiv.style.display = 'block';
-                        loading.style.display = 'none';
-                        return;
-                    }
-
-                    // Costruisci la tabella
+                    // Costruisci la tabella completa (senza filtro inizialmente)
                     let tableHtml = `
                         <thead>
                             <tr>
@@ -126,12 +104,13 @@
                         <tbody>
                     `;
 
-                    filteredRows.forEach(row => {
+                    const rows = tableElement.querySelectorAll('tbody tr');
+                    rows.forEach(row => {
                         const cells = row.cells;
                         const eta = cells[0].textContent.trim();
                         const shipDiv = cells[1].querySelector('.named-item-inner');
-                        const shipName = shipDiv.querySelector('.named-title').textContent.trim();
-                        const shipType = shipDiv.querySelector('.named-subtitle').textContent.trim();
+                        const shipName = shipDiv ? shipDiv.querySelector('.named-title').textContent.trim() : 'N/A';
+                        const shipType = shipDiv ? shipDiv.querySelector('.named-subtitle').textContent.trim() : 'N/A';
                         const flagDiv = cells[1].querySelector('.flag-icon');
                         const flagTitle = flagDiv ? flagDiv.title : '-';
                         const built = cells[4].textContent.trim();
@@ -155,11 +134,12 @@
 
                     tableHtml += '</tbody>';
                     table.innerHTML = tableHtml;
-
-                    // Mostra la tabella
                     table.style.display = 'table';
                     loading.style.display = 'none';
                     errorDiv.style.display = 'none';
+
+                    // Ora filtra per domani
+                    filterForTomorrow();
 
                 } catch (error) {
                     errorDiv.textContent = `Errore: ${error.message}. Controlla se VesselFinder consente l’iframe.`;
@@ -169,14 +149,49 @@
                 }
             };
 
-            // Se l’iframe non si carica entro 10 secondi, mostra un errore
+            // Timeout di sicurezza
             setTimeout(() => {
                 if (loading.style.display !== 'none') {
-                    errorDiv.textContent = 'Errore: Caricamento iframe fallito (possibile X-Frame-Options)';
+                    errorDiv.textContent = 'Errore: Caricamento iframe fallito (possibile X-Frame-Options o ritardo)';
                     errorDiv.style.display = 'block';
                     loading.style.display = 'none';
                 }
             }, 10000);
+        }
+
+        function filterForTomorrow() {
+            const table = document.getElementById('expected-table');
+            const errorDiv = document.getElementById('error');
+
+            // Calcola la data di domani
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            const tomorrowStr = tomorrow.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric'
+            }).replace(/,/, '');
+
+            // Filtra le righe
+            const rows = table.querySelectorAll('tbody tr');
+            const filteredRows = Array.from(rows).filter(row => {
+                const etaCell = row.cells[0].textContent.trim();
+                return etaCell.includes(tomorrowStr);
+            });
+
+            // Svuota la tabella
+            table.querySelector('tbody').innerHTML = '';
+
+            if (filteredRows.length === 0) {
+                table.querySelector('tbody').innerHTML = '<tr><td colspan="8">Nessuna nave prevista per domani</td></tr>';
+            } else {
+                filteredRows.forEach(row => {
+                    table.querySelector('tbody').appendChild(row);
+                });
+            }
+
+            table.style.display = 'table';
+            errorDiv.style.display = 'none';
         }
 
         // Esegui al caricamento
