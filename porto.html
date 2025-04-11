@@ -15,44 +15,21 @@
             color: #333;
         }
         #iframe-container {
-            overflow: hidden;
-            height: 1000px; /* Sufficiente per 20 navi */
-            position: relative; /* Per posizionare l’overlay */
+            height: auto; /* Mostra tutto per test */
         }
         #vessel-iframe {
             width: 100%;
-            height: 2000px; /* Altezza totale della pagina */
+            height: 2000px;
             border: none;
             position: relative;
-            top: -700px; /* Nasconde i filtri sopra */
-        }
-        #iframe-container::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 150px; /* Altezza stimata del footer */
-            background: white; /* Copre il footer */
-        }
-        .credit {
-            font-size: 12px;
-            color: #666;
-            margin-top: 10px;
-        }
-        .note {
-            font-style: italic;
-            color: #666;
-            margin: 10px 0;
+            top: -800px;
         }
     </style>
 </head>
 <body>
     <h2>Navi previste a Cagliari</h2>
-    <div class="note">Dati aggiornati in tempo reale da VesselFinder. Mostra tutte le navi previste in arrivo.</div>
     <div id="iframe-container">
         <iframe id="vessel-iframe" src="https://www.vesselfinder.com/it/ports/ITCAG001#expected" width="100%" height="1000"></iframe>
     </div>
-    <p class="credit">Dati forniti da <a href="https://www.vesselfinder.com" target="_blank">VesselFinder</a></p>
 </body>
 </html>
